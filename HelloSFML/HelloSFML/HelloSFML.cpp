@@ -98,6 +98,18 @@ int main()
 	MessageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
 	MessageText.setPosition(1440/2.0f, 1080/2.0f);
 	ScoreText.setOrigin(5, 5);
+
+	//creating timebar
+	RectangleShape timebar;
+	float timebarwidth = 400;
+	float timebarheight = 80;
+	timebar.setSize(Vector2f(timebarwidth, timebarheight));
+	timebar.setFillColor(Color:: Red);
+	timebar.setPosition((1440 / 2) - (timebarwidth / 2), timebarheight / 2);
+
+	Time gametimetotal;
+	float gametimeremaining = 6;
+	float timebarwidthperseconds = timebarwidth / gametimeremaining;
 	
 	while (window.isOpen())
 	{
@@ -115,6 +127,9 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::Return))
 		{
 			paused = false;
+			// reset game time remaining by pressing Enter
+			gametimeremaining = 5;
+
 		}
 		/*
 		****************************************
@@ -175,6 +190,16 @@ int main()
 			std::stringstream ss;
 			ss << "Score: "<< score;
 			ScoreText.setString(ss.str());
+			//update game time remaining
+			gametimeremaining -= dt.asSeconds;
+			timebar.setSize(Vector2f(timebarwidthperseconds * gametimeremaining, timebarheight));
+			//check for game time remaining 
+			if (gametimeremaining < 0)
+			{
+				MessageText.setString("Out Of Time!!!");
+				MessageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+				MessageText.setPosition(1440 / 2.0f, 1080 / 2.0f);
+			}
 		}//end of paused
 		/*
 		****************************************
@@ -195,12 +220,15 @@ int main()
 		//window.draw(spriteMole3);
 		//draw the score 
 		window.draw(ScoreText);
+		//draw time bar
+		window.draw(timebar);
 		if (paused)
 		{
 			//draw our message
 			window.draw(MessageText);
 		}
 		// show everything we just drew
+		
 		window.display();
 	}
     return 0;
