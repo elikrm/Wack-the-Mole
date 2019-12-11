@@ -66,6 +66,19 @@ int main()
 	float HammerSpeed = 0.0f;
 
 	Clock clock;
+
+	//creating timebar
+	RectangleShape timebar;
+	float timebarwidth = 400;
+	float timebarheight = 80;
+	timebar.setSize(Vector2f(timebarwidth, timebarheight));
+	timebar.setFillColor(Color::Red);
+	timebar.setPosition((1440 / 2) - timebarwidth / 2, 1080/16);
+
+	Time gametimetotal;
+	float gametimeremaining = 6.0f;
+	float timebarwidthperseconds = timebarwidth / gametimeremaining;
+
 	//track whether the game is running
 	bool paused = true;
 
@@ -99,17 +112,6 @@ int main()
 	MessageText.setPosition(1440/2.0f, 1080/2.0f);
 	ScoreText.setOrigin(5, 5);
 
-	//creating timebar
-	RectangleShape timebar;
-	float timebarwidth = 400;
-	float timebarheight = 80;
-	timebar.setSize(Vector2f(timebarwidth, timebarheight));
-	timebar.setFillColor(Color:: Red);
-	timebar.setPosition((1440 / 2) - (timebarwidth / 2), timebarheight / 2);
-
-	Time gametimetotal;
-	float gametimeremaining = 6;
-	float timebarwidthperseconds = timebarwidth / gametimeremaining;
 	
 	while (window.isOpen())
 	{
@@ -127,6 +129,7 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::Return))
 		{
 			paused = false;
+			score = 0;
 			// reset game time remaining by pressing Enter
 			gametimeremaining = 5;
 
@@ -140,6 +143,22 @@ int main()
 		{
 			//measure the time 
 			Time dt = clock.restart();
+
+			//update game time remaining
+			gametimeremaining -= dt.asSeconds();
+			timebar.setSize(Vector2f(timebarwidthperseconds * gametimeremaining, timebarheight));
+			//check for game time remaining 
+			if (gametimeremaining < 0)
+			{
+				//pause the game 
+				paused = true;
+				MessageText.setString("Out Of Time!!!");
+				//reposition the text based on its new size 
+				MessageText.setFillColor(Color::Red);
+				FloatRect textRec = MessageText.getLocalBounds();
+				MessageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+				MessageText.setPosition(1440 / 2.0f, 1080 / 4.0f);
+			}
 			if (!BeeActive)
 			{
 				//how fast is the Bee
@@ -190,16 +209,7 @@ int main()
 			std::stringstream ss;
 			ss << "Score: "<< score;
 			ScoreText.setString(ss.str());
-			//update game time remaining
-			gametimeremaining -= dt.asSeconds;
-			timebar.setSize(Vector2f(timebarwidthperseconds * gametimeremaining, timebarheight));
-			//check for game time remaining 
-			if (gametimeremaining < 0)
-			{
-				MessageText.setString("Out Of Time!!!");
-				MessageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-				MessageText.setPosition(1440 / 2.0f, 1080 / 2.0f);
-			}
+
 		}//end of paused
 		/*
 		****************************************
